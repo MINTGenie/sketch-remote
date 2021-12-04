@@ -10,6 +10,41 @@ pins.onPulsed(DigitalPin.P16, PulseValue.High, function () {
 pins.onPulsed(DigitalPin.P15, PulseValue.High, function () {
     show = 1
 })
+function show_on_led (prevX: number, prevY: number, curX: number, curY: number) {
+    list = [
+    Math.round(pins.map(
+    prevX,
+    0,
+    1023,
+    0,
+    5
+    )),
+    Math.round(pins.map(
+    prevY,
+    0,
+    1023,
+    5,
+    0
+    )),
+    Math.round(pins.map(
+    curX,
+    0,
+    1023,
+    0,
+    5
+    )),
+    Math.round(pins.map(
+    curY,
+    0,
+    1023,
+    5,
+    0
+    ))
+    ]
+    serial.writeNumbers(list)
+    led.unplot(list[0], list[1])
+    led.plot(list[2], list[3])
+}
 pins.onPulsed(DigitalPin.P16, PulseValue.Low, function () {
     coloridx = false
 })
@@ -17,10 +52,11 @@ pins.onPulsed(DigitalPin.P15, PulseValue.Low, function () {
     show = 0
     radio.sendValue("draw", 1)
 })
-let prevY = 0
 let prevX = 0
-let tmpY = 0
+let prevY = 0
 let tmpX = 0
+let tmpY = 0
+let list: number[] = []
 let show = 0
 let coloridx = false
 radio.setGroup(1)
@@ -30,32 +66,15 @@ pins.setPull(DigitalPin.P15, PinPullMode.PullUp)
 pins.setPull(DigitalPin.P16, PinPullMode.PullUp)
 coloridx = false
 basic.forever(function () {
-    tmpX = pins.map(
-    pins.analogReadPin(AnalogPin.P2),
-    0,
-    1023,
-    7,
-    0
-    )
-    tmpY = pins.map(
-    pins.analogReadPin(AnalogPin.P1),
-    0,
-    1023,
-    0,
-    7
-    )
-    if (!(prevX == tmpX && prevY == tmpY)) {
+    tmpY = pins.analogReadPin(AnalogPin.P1)
+    tmpX = pins.analogReadPin(AnalogPin.P2)
+    if (tmpY < prevY - 32 || tmpY >= prevY + 32 || (tmpX < prevX - 32 || tmpX >= prevX + 32)) {
         if (show) {
-            radio.sendValue("10000x+y", pins.analogReadPin(AnalogPin.P1) * 10000 + pins.analogReadPin(AnalogPin.P2))
-            basic.pause(50)
+            radio.sendValue("10000x+y", tmpY * 10000 + tmpX)
         } else {
-            radio.sendValue("cursor", pins.analogReadPin(AnalogPin.P1) * 10000 + pins.analogReadPin(AnalogPin.P2))
-            led.unplot(prevX, prevY)
-            led.plot(tmpX, tmpY)
-            basic.pause(50)
+            radio.sendValue("cursor", tmpY * 10000 + tmpX)
         }
-        prevX = tmpX
-        prevY = tmpY
+        prevX = tmpY
+        prevY = tmpX
     }
-    basic.pause(50)
 })
