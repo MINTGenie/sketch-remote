@@ -47,12 +47,10 @@ basic.forever(function () {
     if (!(prevX == tmpX && prevY == tmpY)) {
         if (show) {
             radio.sendValue("10000x+y", pins.analogReadPin(AnalogPin.P1) * 10000 + pins.analogReadPin(AnalogPin.P2))
-            basic.pause(50)
         } else {
             radio.sendValue("cursor", pins.analogReadPin(AnalogPin.P1) * 10000 + pins.analogReadPin(AnalogPin.P2))
             led.unplot(prevX, prevY)
             led.plot(tmpX, tmpY)
-            basic.pause(50)
         }
         prevX = tmpX
         prevY = tmpY
