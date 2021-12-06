@@ -34,7 +34,7 @@ basic.forever(function () {
     pins.analogReadPin(AnalogPin.P2),
     0,
     1023,
-    7,
+    31,
     0
     )
     tmpY = pins.map(
@@ -42,15 +42,15 @@ basic.forever(function () {
     0,
     1023,
     0,
-    7
+    31
     )
     if (!(prevX == tmpX && prevY == tmpY)) {
         if (show) {
             radio.sendValue("10000x+y", pins.analogReadPin(AnalogPin.P1) * 10000 + pins.analogReadPin(AnalogPin.P2))
         } else {
             radio.sendValue("cursor", pins.analogReadPin(AnalogPin.P1) * 10000 + pins.analogReadPin(AnalogPin.P2))
-            led.unplot(prevX - 1, prevY - 1)
-            led.plot(tmpX - 1, tmpY - 1)
+            led.unplot(prevX / 4 - 1, prevY / 4 - 1)
+            led.plot(tmpX / 4 - 1, tmpY / 4 - 1)
         }
         prevX = tmpX
         prevY = tmpY
