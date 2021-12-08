@@ -7,11 +7,20 @@ pins.onPulsed(DigitalPin.P16, PulseValue.High, function () {
         radio.sendValue("coloridx", 1)
     }
 })
+input.onButtonPressed(Button.A, function () {
+    radio.sendValue("save_now", 1)
+})
 pins.onPulsed(DigitalPin.P15, PulseValue.High, function () {
     show = 1
 })
+pins.onPulsed(DigitalPin.P13, PulseValue.Low, function () {
+    radio.sendValue("draw_mode", 1)
+})
 pins.onPulsed(DigitalPin.P16, PulseValue.Low, function () {
     coloridx = false
+})
+pins.onPulsed(DigitalPin.P14, PulseValue.Low, function () {
+    radio.sendValue("disp_mode", 1)
 })
 pins.onPulsed(DigitalPin.P15, PulseValue.Low, function () {
     show = 0
