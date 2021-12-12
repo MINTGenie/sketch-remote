@@ -5,6 +5,7 @@ pins.onPulsed(DigitalPin.P16, PulseValue.High, function () {
     if (!(coloridx)) {
         coloridx = true
         radio.sendValue("coloridx", 1)
+        basic.pause(10)
     }
 })
 input.onButtonPressed(Button.A, function () {
@@ -24,6 +25,7 @@ input.onButtonPressed(Button.B, function () {
 })
 pins.onPulsed(DigitalPin.P16, PulseValue.Low, function () {
     coloridx = false
+    basic.pause(10)
 })
 pins.onPulsed(DigitalPin.P14, PulseValue.Low, function () {
     radio.sendValue("dispM", 1)
@@ -33,25 +35,26 @@ pins.onPulsed(DigitalPin.P15, PulseValue.Low, function () {
     radio.sendValue("commit", 1)
 })
 function plot_on_LED () {
-    tmpX = pins.map(
+    tmpX = Math.round(pins.map(
     p2val,
-    0,
-    1023,
+    10,
+    1010,
     4,
     0
-    )
-    tmpY = pins.map(
+    ))
+    tmpY = Math.round(pins.map(
     p1val,
-    0,
-    1023,
+    10,
+    1010,
     0,
     4
-    )
+    ))
     led.unplot(prevX, prevY)
     led.plot(tmpX, tmpY)
     prevX = tmpX
     prevY = tmpY
 }
+let joy_val = 0
 let tmpP1 = 0
 let tmpP2 = 0
 let prevY = 0
@@ -70,18 +73,34 @@ pins.setPull(DigitalPin.P16, PinPullMode.PullUp)
 pins.setPull(DigitalPin.P13, PinPullMode.PullUp)
 pins.setPull(DigitalPin.P14, PinPullMode.PullUp)
 coloridx = false
+let Joystk_filter_max = 1023
 basic.forever(function () {
     p1val = pins.analogReadPin(AnalogPin.P1)
     p2val = pins.analogReadPin(AnalogPin.P2)
     if (Math.abs(tmpP2 - p2val) > 20 || Math.abs(tmpP1 - p1val) > 20) {
+        joy_val = Math.round(pins.map(
+        p1val,
+        0,
+        1023,
+        0,
+        Joystk_filter_max
+        )) * 10000 + Math.round(pins.map(
+        p2val,
+        0,
+        1023,
+        0,
+        Joystk_filter_max
+        ))
         if (show) {
-            radio.sendValue("10000x+y", p1val * 10000 + p2val)
+            radio.sendValue("10000x+y", joy_val)
         } else {
-            radio.sendValue("cursor", p1val * 10000 + p2val)
+            radio.sendValue("cursor", joy_val)
         }
         tmpP1 = p1val
         tmpP2 = p2val
-    } else {
-        basic.pause(20)
     }
+})
+basic.forever(function () {
+    plot_on_LED()
+    basic.pause(100)
 })
